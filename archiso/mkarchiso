@@ -134,6 +134,8 @@ _show_config () {
             _msg_info "              Run command:   ${run_cmd}"
             ;;
         prepare)
+            _msg_info "            SquashFS mode:   ${sfs_mode}"
+            _msg_info "     SquashFS compression:   ${sfs_comp}"
             ;;
         pkglist)
             ;;
