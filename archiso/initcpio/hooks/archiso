@@ -179,7 +179,7 @@ archiso_mount_handler() {
     if [[ -f "/run/archiso/sfs/airootfs/airootfs.img" ]]; then
         _mnt_dmsnapshot "/run/archiso/sfs/airootfs/airootfs.img" "${newroot}" "/"
     else
-        _mnt_overlayfs "/run/archiso/sfs/airootfs" "${newroot}" "/"
+        _mnt_overlayfs "/run/archiso/sfs/airootfs/${arch}" "${newroot}" "/"
     fi
 
     if [[ "${copytoram}" == "y" ]]; then

@@ -244,9 +244,9 @@ _mkairootfs_sfs () {
     mkdir -p "${work_dir}/iso/${install_dir}/${sfs_dir}"
     _msg_info "Creating SquashFS image, this may take some time..."
     if [[ "${quiet}" = "y" ]]; then
-        mksquashfs "${work_dir}/airootfs" "${work_dir}/iso/${install_dir}/${sfs_dir}/airootfs.sfs" -noappend -comp "${sfs_comp}" -no-progress &> /dev/null
+        mksquashfs "${work_dir}/airootfs/${arch}" "${work_dir}/iso/${install_dir}/${sfs_dir}/airootfs.sfs" -keep-as-directory -comp "${sfs_comp}" -no-progress &> /dev/null
     else
-        mksquashfs "${work_dir}/airootfs" "${work_dir}/iso/${install_dir}/${sfs_dir}/airootfs.sfs" -noappend -comp "${sfs_comp}" -no-progress
+        mksquashfs "${work_dir}/airootfs/${arch}" "${work_dir}/iso/${install_dir}/${sfs_dir}/airootfs.sfs" -keep-as-directory -comp "${sfs_comp}" -no-progress
     fi
     _msg_info "Done!"
 }
