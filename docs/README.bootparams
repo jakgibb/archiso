@@ -59,6 +59,8 @@ INDEX
 * arch=             Force an architecture type (i686 | x86_64).
                     Do not set it for normal operations.
                     Default: (architecture of running kernel)
+* sfs_dir=          Set a custom sub-directory for airootfs.sfs file.
+                    Default: $arch
 
 
 ** hooks/archiso_pxe_common

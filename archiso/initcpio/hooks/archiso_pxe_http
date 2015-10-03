@@ -34,10 +34,10 @@ archiso_pxe_http_mount_handler () {
     mkdir -p "/run/archiso/httpspace"
     mount -t tmpfs -o size="${archiso_http_spc}",mode=0755 httpspace "/run/archiso/httpspace"
 
-    _curl_get "${archiso_http_srv}${archisobasedir}/${arch}/airootfs.sfs" "/${arch}"
+    _curl_get "${archiso_http_srv}${archisobasedir}/${sfs_dir}/airootfs.sfs" "/${sfs_dir}"
 
     if [[ "${checksum}" == "y" ]]; then
-        _curl_get "${archiso_http_srv}${archisobasedir}/${arch}/airootfs.md5" "/${arch}"
+        _curl_get "${archiso_http_srv}${archisobasedir}/${sfs_dir}/airootfs.md5" "/${sfs_dir}"
     fi
 
     mkdir -p "/run/archiso/bootmnt"

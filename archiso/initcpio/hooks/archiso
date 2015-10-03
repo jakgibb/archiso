@@ -106,6 +106,7 @@ _verify_checksum() {
 
 run_hook() {
     [[ -z "${arch}" ]] && arch="$(uname -m)"
+    [[ -z "${sfs_dir}" ]] && sfs_dir="$arch"
     [[ -z "${copytoram_size}" ]] && copytoram_size="75%"
     [[ -z "${archisobasedir}" ]] && archisobasedir="arch"
     [[ -z "${dm_snap_prefix}" ]] && dm_snap_prefix="arch"
@@ -142,7 +143,7 @@ archiso_mount_handler() {
     fi
 
     if [[ "${checksum}" == "y" ]]; then
-        if [[ -f "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.md5" ]]; then
+        if [[ -f "/run/archiso/bootmnt/${archisobasedir}/${sfs_dir}/airootfs.md5" ]]; then
             msg -n ":: Self-test requested, please wait..."
             if _verify_checksum; then
                 msg "done. Checksum is OK, continue booting."
@@ -152,7 +153,7 @@ archiso_mount_handler() {
                 launch_interactive_shell
             fi
         else
-            echo "ERROR: checksum=y option specified but ${archisobasedir}/${arch}/airootfs.md5 not found"
+            echo "ERROR: checksum=y option specified but ${archisobasedir}/${sfs_dir}/airootfs.md5 not found"
             launch_interactive_shell
         fi
     fi
@@ -174,7 +175,7 @@ archiso_mount_handler() {
     fi
     mkdir -p -m 0700 "/run/archiso/cowspace/${cow_directory}"
 
-    _mnt_sfs "/run/archiso/bootmnt/${archisobasedir}/${arch}/airootfs.sfs" "/run/archiso/sfs/airootfs"
+    _mnt_sfs "/run/archiso/bootmnt/${archisobasedir}/${sfs_dir}/airootfs.sfs" "/run/archiso/sfs/airootfs"
     if [[ -f "/run/archiso/sfs/airootfs/airootfs.img" ]]; then
         _mnt_dmsnapshot "/run/archiso/sfs/airootfs/airootfs.img" "${newroot}" "/"
     else

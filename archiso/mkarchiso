@@ -18,6 +18,7 @@ work_dir="work"
 out_dir="out"
 sfs_mode="sfs"
 sfs_comp="xz"
+sfs_dir="${arch}"
 
 # Show an INFO message
 # $1: message string
@@ -94,6 +95,8 @@ _usage ()
     echo "                     Default: ${sfs_mode}"
     echo "    -c <comp_type>   Set SquashFS compression type (gzip, lzma, lzo, xz)"
     echo "                     Default: '${sfs_comp}'"
+    echo "    -d <sfs_dir>     Set custom sub-directory for SquashFS image"
+    echo "                     Default: '${sfs_dir}'"
     echo "    -v               Enable verbose output"
     echo "    -h               This message"
     echo " commands:"
@@ -136,6 +139,7 @@ _show_config () {
         prepare)
             _msg_info "            SquashFS mode:   ${sfs_mode}"
             _msg_info "     SquashFS compression:   ${sfs_comp}"
+            _msg_info "       SquashFS directory:   ${sfs_dir}"
             ;;
         pkglist)
             ;;
@@ -220,12 +224,12 @@ _mkairootfs_img () {
     cp -aT "${work_dir}/airootfs/" "${work_dir}/mnt/airootfs/"
     _msg_info "Done!"
     _umount_airootfs
-    mkdir -p "${work_dir}/iso/${install_dir}/${arch}"
+    mkdir -p "${work_dir}/iso/${install_dir}/${sfs_dir}"
     _msg_info "Creating SquashFS image, this may take some time..."
     if [[ "${quiet}" = "y" ]]; then
-        mksquashfs "${work_dir}/airootfs.img" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" -no-progress &> /dev/null
+        mksquashfs "${work_dir}/airootfs.img" "${work_dir}/iso/${install_dir}/${sfs_dir}/airootfs.sfs" -noappend -comp "${sfs_comp}" -no-progress &> /dev/null
     else
-        mksquashfs "${work_dir}/airootfs.img" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" -no-progress
+        mksquashfs "${work_dir}/airootfs.img" "${work_dir}/iso/${install_dir}/${sfs_dir}/airootfs.sfs" -noappend -comp "${sfs_comp}" -no-progress
     fi
     _msg_info "Done!"
     rm ${work_dir}/airootfs.img
@@ -237,19 +241,19 @@ _mkairootfs_sfs () {
         _msg_error "The path '${work_dir}/airootfs' does not exist" 1
     fi
 
-    mkdir -p "${work_dir}/iso/${install_dir}/${arch}"
+    mkdir -p "${work_dir}/iso/${install_dir}/${sfs_dir}"
     _msg_info "Creating SquashFS image, this may take some time..."
     if [[ "${quiet}" = "y" ]]; then
-        mksquashfs "${work_dir}/airootfs" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" -no-progress &> /dev/null
+        mksquashfs "${work_dir}/airootfs" "${work_dir}/iso/${install_dir}/${sfs_dir}/airootfs.sfs" -noappend -comp "${sfs_comp}" -no-progress &> /dev/null
     else
-        mksquashfs "${work_dir}/airootfs" "${work_dir}/iso/${install_dir}/${arch}/airootfs.sfs" -noappend -comp "${sfs_comp}" -no-progress
+        mksquashfs "${work_dir}/airootfs" "${work_dir}/iso/${install_dir}/${sfs_dir}/airootfs.sfs" -noappend -comp "${sfs_comp}" -no-progress
     fi
     _msg_info "Done!"
 }
 
 _mkchecksum () {
     _msg_info "Creating checksum file for self-test..."
-    cd "${work_dir}/iso/${install_dir}/${arch}"
+    cd "${work_dir}/iso/${install_dir}/${sfs_dir}"
     md5sum airootfs.sfs > airootfs.md5
     cd ${OLDPWD}
     _msg_info "Done!"
@@ -357,7 +361,7 @@ if [[ ${EUID} -ne 0 ]]; then
     _msg_error "This script must be run as root." 1
 fi
 
-while getopts 'p:r:C:L:P:A:D:w:o:s:c:vh' arg; do
+while getopts 'p:r:C:L:P:A:D:w:o:s:c:d:vh' arg; do
     case "${arg}" in
         p) pkg_list="${pkg_list} ${OPTARG}" ;;
         r) run_cmd="${OPTARG}" ;;
@@ -370,6 +374,7 @@ while getopts 'p:r:C:L:P:A:D:w:o:s:c:vh' arg; do
         o) out_dir="${OPTARG}" ;;
         s) sfs_mode="${OPTARG}" ;;
         c) sfs_comp="${OPTARG}" ;;
+        d) sfs_dir="${OPTARG}" ;;
         v) quiet="n" ;;
         h|?) _usage 0 ;;
         *)
