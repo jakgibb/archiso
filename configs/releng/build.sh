@@ -46,17 +46,18 @@ run_once() {
 
 # Setup custom pacman.conf with current cache directories.
 make_pacman_conf() {
-#    local _cache_dirs
-#    _cache_dirs=($(pacman -v 2>&1 | grep '^Cache Dirs:' | sed 's/Cache Dirs:\s*//g'))
-#    sed -r "s|^#?\\s*CacheDir.+|CacheDir = $(echo -n ${_cache_dirs[@]})|g" ${script_path}/pacman.conf > ${work_dir}/pacman.conf
-
-# 
-# use pacman.conf in script directory, and
-# use alernative cache directory as low space on live build system
-    cp ${script_path}/pacman.conf ${work_dir}/pacman.conf
+    #_cache_dirs=($(pacman -v 2>&1 | grep '^Cache Dirs:' | sed 's/Cache Dirs:\s*//g'))
+    #sed -r "s|^#?\\s*CacheDir.+|CacheDir = $(echo -n ${_cache_dirs[@]})|g" ${script_path}/pacman.conf > ${work_dir}/pacman.conf
+    
+    #Use an alternative cache directory (build scripts are on external drive) as low space when building on live system.
+    #CacheDir is set to a tmp directory within the scripts current directory (which may differ depending on where mounted).
+    #Replace the old cache directory in pacman.conf and put pacman.conf in the work directory
+    local _cache_dirs
+    _cache_dirs=${script_path}/tmp/pkg
     if [[ ! -d ${script_path}/tmp/pkg ]]; then
-        mkdir -p ${script_path}/tmp/pkg	
+	    mkdir -p ${script_path}/tmp/pkg	
     fi
+    sed -r "s|^#?\\s*CacheDir.+|CacheDir = $(echo -n ${_cache_dirs[@]})|g" ${script_path}/pacman.conf > ${work_dir}/pacman.conf
 }
 
 # Base installation, plus needed packages (airootfs)
