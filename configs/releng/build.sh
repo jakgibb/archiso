@@ -9,6 +9,7 @@ install_dir=arch
 work_dir=work
 out_dir=out
 gpg_key=
+pkg_check=false
 
 arch=$(uname -m)
 verbose=""
@@ -31,6 +32,8 @@ _usage ()
     echo "                        Default: ${work_dir}"
     echo "    -o <out_dir>       Set the output directory"
     echo "                        Default: ${out_dir}"
+    echo "    -p                 Verify packages listed in the packages.* files exist in the repos"
+    echo "                        Default: ${pkg_check}"
     echo "    -v                 Enable verbose output"
     echo "    -h                 This help message"
     exit ${1}
@@ -216,6 +219,15 @@ make_iso() {
     mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -o "${out_dir}" iso "${iso_name}-${iso_version}-dual.iso"
 }
 
+check_pkgs() {
+    for packagefile in packages.*; do
+        echo "Validating $packagefile..."
+        while read package; do
+            pacman -Ssq "^$package$" 1>/dev/null || echo -e "[!] $package from $packagefile not found"
+        done < "$packagefile"
+    done
+}
+
 if [[ ${EUID} -ne 0 ]]; then
     echo "This script must be run as root."
     _usage 1
@@ -226,7 +238,7 @@ if [[ ${arch} != x86_64 ]]; then
     _usage 1
 fi
 
-while getopts 'N:V:L:D:w:o:g:vh' arg; do
+while getopts 'N:V:L:D:w:o:g:pvh' arg; do
     case "${arg}" in
         N) iso_name="${OPTARG}" ;;
         V) iso_version="${OPTARG}" ;;
@@ -235,6 +247,7 @@ while getopts 'N:V:L:D:w:o:g:vh' arg; do
         w) work_dir="${OPTARG}" ;;
         o) out_dir="${OPTARG}" ;;
         g) gpg_key="${OPTARG}" ;;
+        p) pkg_check="true" ;;
         v) verbose="-v" ;;
         h) _usage 0 ;;
         *)
@@ -243,6 +256,11 @@ while getopts 'N:V:L:D:w:o:g:vh' arg; do
            ;;
     esac
 done
+
+if [[ ${pkg_check} == true ]]; then
+    check_pkgs
+exit
+fi
 
 mkdir -p ${work_dir}
 
