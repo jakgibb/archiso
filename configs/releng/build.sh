@@ -46,9 +46,17 @@ run_once() {
 
 # Setup custom pacman.conf with current cache directories.
 make_pacman_conf() {
-    local _cache_dirs
-    _cache_dirs=($(pacman -v 2>&1 | grep '^Cache Dirs:' | sed 's/Cache Dirs:\s*//g'))
-    sed -r "s|^#?\\s*CacheDir.+|CacheDir = $(echo -n ${_cache_dirs[@]})|g" ${script_path}/pacman.conf > ${work_dir}/pacman.conf
+#    local _cache_dirs
+#    _cache_dirs=($(pacman -v 2>&1 | grep '^Cache Dirs:' | sed 's/Cache Dirs:\s*//g'))
+#    sed -r "s|^#?\\s*CacheDir.+|CacheDir = $(echo -n ${_cache_dirs[@]})|g" ${script_path}/pacman.conf > ${work_dir}/pacman.conf
+
+# 
+# use pacman.conf in script directory, and
+# use alernative cache directory as low space on live build system
+    cp ${script_path}/pacman.conf ${work_dir}/pacman.conf
+    if [[ ! -d ${script_path}/tmp/pkg ]]; then
+        mkdir -p ${script_path}/tmp/pkg	
+    fi
 }
 
 # Base installation, plus needed packages (airootfs)
